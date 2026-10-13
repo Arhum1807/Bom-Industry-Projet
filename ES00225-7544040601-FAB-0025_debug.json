@@ -1,0 +1,394 @@
+{
+  "title_block": {
+    "document_id": "ES00225-7544040601-FAB-0025",
+    "title": "MECH. IMPORT SYSTEM THROUGH BERTH BB-6 WITH IMWLS WEIGHT FRAME FOR BELT CONV. BCU-104",
+    "project_id": "ES-00225",
+    "element_id": "75-44-04-06-01",
+    "revision": "",
+    "date": "13-04-2026",
+    "scale": "1:35",
+    "total_weight_kg": "",
+    "drawn_by": "TSP",
+    "checked_by": "GPB",
+    "approved_by": "DVK",
+    "client": "ADANI THE DHAMRA PORT COMPANY LIMITED",
+    "consultant": "ADANI INFRA (INDIA) LTD."
+  },
+  "bom_items": [
+    {
+      "item_no": "1",
+      "description": "UB 356x171x51",
+      "specification": "IS:2062",
+      "size": "1980 LG.",
+      "quantity": 4,
+      "part_weight_kg": 403.92,
+      "purchase_item_code": "INBR07356171051"
+    },
+    {
+      "item_no": "2",
+      "description": "UB 356x171x51",
+      "specification": "IS:2062",
+      "size": "2645 LG.",
+      "quantity": 2,
+      "part_weight_kg": 269.79,
+      "purchase_item_code": "INBR07356171051"
+    },
+    {
+      "item_no": "3",
+      "description": "UB 356x171x51",
+      "specification": "IS:2062",
+      "size": "2268 LG.",
+      "quantity": 2,
+      "part_weight_kg": 231.34,
+      "purchase_item_code": "INBR07356171051"
+    },
+    {
+      "item_no": "4",
+      "description": "UB 356x171x51",
+      "specification": "IS:2062",
+      "size": "2993 LG.",
+      "quantity": 1,
+      "part_weight_kg": 152.64,
+      "purchase_item_code": "INBR07356171051"
+    },
+    {
+      "item_no": "4A",
+      "description": "UB 356x171x51",
+      "specification": "IS:2062",
+      "size": "2268 LG.",
+      "quantity": 1,
+      "part_weight_kg": 115.67,
+      "purchase_item_code": "INBR07356171051"
+    },
+    {
+      "item_no": "5",
+      "description": "ISMC 250",
+      "specification": "IS:2062",
+      "size": "287 LG.",
+      "quantity": 8,
+      "part_weight_kg": 70.26,
+      "purchase_item_code": "INCR01250080310"
+    },
+    {
+      "item_no": "6",
+      "description": "PLATE",
+      "specification": "IS:2062",
+      "size": "300 x 380 x 16THK",
+      "quantity": 4,
+      "part_weight_kg": 57.27,
+      "purchase_item_code": "IPPR01001600000"
+    },
+    {
+      "item_no": "7",
+      "description": "PLATE",
+      "specification": "IS:2062",
+      "size": "70 x 332 x 12THK",
+      "quantity": 52,
+      "part_weight_kg": 113.43,
+      "purchase_item_code": "IPPR01001200000"
+    },
+    {
+      "item_no": "8",
+      "description": "UB 356x171x51",
+      "specification": "IS:2062",
+      "size": "2645 LG.",
+      "quantity": 2,
+      "part_weight_kg": 269.79,
+      "purchase_item_code": "INBR07356171051"
+    },
+    {
+      "item_no": "9",
+      "description": "PLATE",
+      "specification": "IS:2062",
+      "size": "470 x 780 x 16THK",
+      "quantity": 6,
+      "part_weight_kg": 276.27,
+      "purchase_item_code": "IPPR01001600000"
+    },
+    {
+      "item_no": "10",
+      "description": "PLATE",
+      "specification": "IS:2062",
+      "size": "231 x 344 x 12THK",
+      "quantity": 24,
+      "part_weight_kg": 136.06,
+      "purchase_item_code": "IPPR01001200000"
+    },
+    {
+      "item_no": "11",
+      "description": "UB 356x171x51",
+      "specification": "IS:2062",
+      "size": "2268 LG.",
+      "quantity": 2,
+      "part_weight_kg": 231.34,
+      "purchase_item_code": "INBR07356171051"
+    },
+    {
+      "item_no": "12",
+      "description": "L 50x50x6",
+      "specification": "IS:2062",
+      "size": "216 LG.",
+      "quantity": 6,
+      "part_weight_kg": 5.83,
+      "purchase_item_code": "INAR01050050060"
+    },
+    {
+      "item_no": "16",
+      "description": "PLATE",
+      "specification": "IS:2062",
+      "size": "82 x 332 x 8THK",
+      "quantity": 4,
+      "part_weight_kg": 6.84,
+      "purchase_item_code": "IPPR01000800000"
+    },
+    {
+      "item_no": "13",
+      "description": "PLATE",
+      "specification": "IS:2062",
+      "size": "300 x 380 x 16THK",
+      "quantity": 4,
+      "part_weight_kg": 57.27,
+      "purchase_item_code": "IPPR01001600000"
+    },
+    {
+      "item_no": "14",
+      "description": "PLATE",
+      "specification": "IS:2062",
+      "size": "202 x 350 x 12THK",
+      "quantity": 12,
+      "part_weight_kg": 51.55,
+      "purchase_item_code": "IPPR01001200000"
+    },
+    {
+      "item_no": "15",
+      "description": "PLATE",
+      "specification": "IS:2062",
+      "size": "300 x 352 x 8THK",
+      "quantity": 4,
+      "part_weight_kg": 26.53,
+      "purchase_item_code": "IPPR01000800000"
+    }
+  ],
+  "grouped_materials": [
+    {
+      "purchase_item_code": "INCR01250080310",
+      "description": "ISMC 250",
+      "specification": "IS:2062",
+      "combined_size": "2296 LG. (combined)",
+      "total_quantity": 8,
+      "total_weight_kg": 562.08,
+      "parts_combined": 1,
+      "source_parts": [
+        "5"
+      ]
+    },
+    {
+      "purchase_item_code": "INAR01050050060",
+      "description": "L 50x50x6",
+      "specification": "IS:2062",
+      "combined_size": "1296 LG. (combined)",
+      "total_quantity": 6,
+      "total_weight_kg": 34.980000000000004,
+      "parts_combined": 1,
+      "source_parts": [
+        "12"
+      ]
+    },
+    {
+      "purchase_item_code": "IPPR01000800000",
+      "description": "PLATE",
+      "specification": "IS:2062",
+      "combined_size": "328 x 332 x 8THK",
+      "total_quantity": 4,
+      "total_weight_kg": 27.36,
+      "parts_combined": 1,
+      "source_parts": [
+        "16"
+      ]
+    },
+    {
+      "purchase_item_code": "IPPR01000800000",
+      "description": "PLATE",
+      "specification": "IS:2062",
+      "combined_size": "1200 x 352 x 8THK",
+      "total_quantity": 4,
+      "total_weight_kg": 106.12,
+      "parts_combined": 1,
+      "source_parts": [
+        "15"
+      ]
+    },
+    {
+      "purchase_item_code": "IPPR01001200000",
+      "description": "PLATE",
+      "specification": "IS:2062",
+      "combined_size": "3640 x 332 x 12THK",
+      "total_quantity": 52,
+      "total_weight_kg": 5898.360000000001,
+      "parts_combined": 1,
+      "source_parts": [
+        "7"
+      ]
+    },
+    {
+      "purchase_item_code": "IPPR01001200000",
+      "description": "PLATE",
+      "specification": "IS:2062",
+      "combined_size": "5544 x 344 x 12THK",
+      "total_quantity": 24,
+      "total_weight_kg": 3265.44,
+      "parts_combined": 1,
+      "source_parts": [
+        "10"
+      ]
+    },
+    {
+      "purchase_item_code": "IPPR01001200000",
+      "description": "PLATE",
+      "specification": "IS:2062",
+      "combined_size": "2424 x 350 x 12THK",
+      "total_quantity": 12,
+      "total_weight_kg": 618.5999999999999,
+      "parts_combined": 1,
+      "source_parts": [
+        "14"
+      ]
+    },
+    {
+      "purchase_item_code": "IPPR01001600000",
+      "description": "PLATE",
+      "specification": "IS:2062",
+      "combined_size": "2400 x 380 x 16THK",
+      "total_quantity": 8,
+      "total_weight_kg": 458.16,
+      "parts_combined": 2,
+      "source_parts": [
+        "6",
+        "13"
+      ]
+    },
+    {
+      "purchase_item_code": "IPPR01001600000",
+      "description": "PLATE",
+      "specification": "IS:2062",
+      "combined_size": "2820 x 780 x 16THK",
+      "total_quantity": 6,
+      "total_weight_kg": 1657.62,
+      "parts_combined": 1,
+      "source_parts": [
+        "9"
+      ]
+    },
+    {
+      "purchase_item_code": "INBR07356171051",
+      "description": "UB 356x171x51",
+      "specification": "IS:2062",
+      "combined_size": "32833 LG. (combined)",
+      "total_quantity": 14,
+      "total_weight_kg": 3888.51,
+      "parts_combined": 7,
+      "source_parts": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "4A",
+        "8",
+        "11"
+      ]
+    }
+  ],
+  "hardware_items": [
+    {
+      "purchase_item_code": "FWAHSA16H00000G",
+      "description": "HSS Plain Washer M16,IS:6649,HDG",
+      "bolt_mark": "F1",
+      "quantity": 16,
+      "unit_weight_kg": 0.329
+    },
+    {
+      "purchase_item_code": "FNTP0816B00000G",
+      "description": "Hex. Nut M16,IS:1364,P8,HDG",
+      "bolt_mark": "F1",
+      "quantity": 16,
+      "unit_weight_kg": 0.6046
+    },
+    {
+      "purchase_item_code": "FHS16055E00000G",
+      "description": "Hex. Screw M16x55Lg,IS:1364,P8.8,HDG",
+      "bolt_mark": "F1",
+      "quantity": 16,
+      "unit_weight_kg": 1.8687
+    },
+    {
+      "purchase_item_code": "FNTP0836B00000G",
+      "description": "Hex. Nut M36,IS:1364,P8,HDG",
+      "bolt_mark": "F2",
+      "quantity": 48,
+      "unit_weight_kg": 20.18
+    },
+    {
+      "purchase_item_code": "FHS36130E00000G",
+      "description": "Hex. Screw M36x130Lg,IS:1364,P8.8,HDG",
+      "bolt_mark": "F2",
+      "quantity": 48,
+      "unit_weight_kg": 67.47
+    },
+    {
+      "purchase_item_code": "FWAPAA30A00000G",
+      "description": "Plain Washer A31,IS:2016,Type-A,HDG",
+      "bolt_mark": "F2",
+      "quantity": 48,
+      "unit_weight_kg": 2.42
+    },
+    {
+      "purchase_item_code": "FNTP0836E00000G",
+      "description": "Hex. Lock Nut M36,IS:1364,P8,HDG",
+      "bolt_mark": "F2",
+      "quantity": 48,
+      "unit_weight_kg": 11.62
+    }
+  ],
+  "reference_drawings": [
+    {
+      "document_id": "ES00225-75440100-ASY-0004",
+      "description": "GA AND LOAD DATA FOR CONVEYOR BCU-104 (SHEET-1 OF 5)"
+    },
+    {
+      "document_id": "ES00225-7544040601-FAB-0023",
+      "description": "DETAIL OF VERTICAL GRAVITY TAKE-UP FRAME FOR BELT CONV. BCU-104"
+    },
+    {
+      "document_id": "ES00225-7544040601-FAB-0026",
+      "description": "DETAIL OF VERTICAL GRAVITY COUNTER WEIGHT FOR BELT CONV. BCU-104"
+    },
+    {
+      "document_id": "ES00225-7544040601-FAB-0035",
+      "description": "DETAILS OF VERTICAL GRAVITY TAKE-UP FRAME CONOPY FOR BELT CONV. BCU-104"
+    },
+    {
+      "document_id": "ES00225-7544040601-FAB-0031",
+      "description": "G.A. OF VERTICAL GRAVITY TAKE-UP MESH GUARD FOR BELT CONV. BCU-104"
+    },
+    {
+      "document_id": "ES00225-7544040601-FAB-0024",
+      "description": "DETAIL OF VERTICAL GRAVITY TAKE-UP FRAME MACHINING ITEM FOR CONV. BCU-104"
+    },
+    {
+      "document_id": "ES00225-7544040601-FAB-0029",
+      "description": "DETAILS OF VERTICAL GRAVITY TAKE-UP GUIDE PIPE FOR BELT CONV. BCU-104"
+    },
+    {
+      "document_id": "ES00225-7544040601-FAB-0030",
+      "description": "DETAILS OF VERTICAL GRAVITY COUNTER WEIGHT GUIDE PIPE FOR BELT CONV. BCU-104"
+    },
+    {
+      "document_id": "ES00225-7544040601-FAB-0032",
+      "description": "G.A. OF VERTICAL GRAVITY TAKE-UP MESH GUARD FOR BELT CONV. BCU-104"
+    },
+    {
+      "document_id": "ES00225-7544040601-FAB-0022",
+      "description": "G.A. OF VERTICAL GRAVITY TAKE-UP FOR BELT CONV. BCU-104"
+    }
+  ]
+}

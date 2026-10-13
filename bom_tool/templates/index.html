@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>BOM Analyser – Engineering Drawing Material Report</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+/* ─── Reset ─── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;background:#0a0f1a;color:#e2e8f0;min-height:100vh;overflow-x:hidden}
+
+/* ─── Tokens ─── */
+:root{
+  --navy:#0d1b2a;
+  --steel:#1b4f72;
+  --accent:#2e86de;
+  --accent2:#5dade2;
+  --green:#1e8449;
+  --green2:#27ae60;
+  --orange:#e67e22;
+  --red:#c0392b;
+  --card:#111927;
+  --card2:#16202e;
+  --border:#1e2d3d;
+  --muted:#7f8c8d;
+  --text:#e2e8f0;
+  --text2:#aeb6c0;
+}
+
+/* ─── Scrollbar ─── */
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:#0a0f1a}
+::-webkit-scrollbar-thumb{background:#1e2d3d;border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:#2e86de}
+
+/* ─── Header ─── */
+header{
+  background:linear-gradient(135deg,#0d1b2a 0%,#1b2f45 100%);
+  border-bottom:1px solid var(--border);
+  padding:0 2rem;
+  position:sticky;top:0;z-index:100;
+  box-shadow:0 2px 20px rgba(0,0,0,.5);
+}
+.header-inner{max-width:1400px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:64px;gap:1rem}
+.logo{display:flex;align-items:center;gap:.75rem;text-decoration:none}
+.logo-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:800;color:#fff}
+.logo-text{font-weight:700;font-size:1.1rem;color:#fff;letter-spacing:-.3px}
+.logo-sub{font-size:.7rem;color:var(--muted);font-weight:400;margin-top:1px}
+.header-badge{background:#1e2d3d;border:1px solid var(--border);border-radius:20px;padding:.25rem .8rem;font-size:.75rem;color:var(--accent2);font-weight:500}
+
+/* ─── Main layout ─── */
+main{max-width:1400px;margin:0 auto;padding:2rem}
+
+/* ─── Upload zone ─── */
+.upload-section{text-align:center;padding:3rem 0 2rem}
+.upload-section h1{font-size:2.4rem;font-weight:800;background:linear-gradient(135deg,#fff 30%,var(--accent2) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:-1px;margin-bottom:.5rem}
+.upload-section .subtitle{color:var(--text2);font-size:1rem;margin-bottom:2.5rem;max-width:560px;margin-left:auto;margin-right:auto;line-height:1.6}
+
+#drop-zone{
+  display:block;
+  border:2px dashed var(--border);
+  border-radius:20px;
+  padding:3.5rem 2rem;
+  background:var(--card);
+  cursor:pointer;
+  transition:all .25s ease;
+  max-width:680px;margin:0 auto;
+  position:relative;overflow:hidden;
+  text-align:center;
+}
+#drop-zone::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 50% 0%,rgba(46,134,222,.08) 0%,transparent 70%);
+  pointer-events:none;
+}
+#drop-zone:hover,#drop-zone.drag-over{
+  border-color:var(--accent);
+  background:#131f2e;
+  box-shadow:0 0 40px rgba(46,134,222,.15);
+}
+.drop-icon{font-size:3.5rem;margin-bottom:1.2rem;display:block;transition:transform .3s}
+#drop-zone:hover .drop-icon{transform:translateY(-4px) scale(1.05)}
+.drop-title{font-size:1.2rem;font-weight:600;color:#fff;margin-bottom:.4rem}
+.drop-sub{font-size:.875rem;color:var(--muted);margin-bottom:1.2rem}
+.browse-btn-wrap{margin-bottom:1.2rem}
+.browse-btn{
+  display:inline-flex;align-items:center;gap:.4rem;
+  background:linear-gradient(135deg,var(--accent),#1a6fc4);
+  color:#fff;border-radius:10px;padding:.65rem 1.6rem;
+  font-size:.9rem;font-weight:600;
+  box-shadow:0 4px 15px rgba(46,134,222,.3);
+  transition:all .2s ease;
+  border:none;cursor:pointer;
+}
+.browse-btn:hover{
+  box-shadow:0 6px 20px rgba(46,134,222,.45);
+  transform:translateY(-1px);
+}
+.file-types{display:flex;justify-content:center;flex-wrap:wrap;gap:.5rem}
+.file-type-badge{background:#1e2d3d;border:1px solid var(--border);border-radius:6px;padding:.2rem .6rem;font-size:.7rem;color:var(--accent2);font-family:'JetBrains Mono',monospace;font-weight:500}
+
+/* Visually hidden file input for 100% reliable cross-browser event firing */
+.visually-hidden-input {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  border: 0 !important;
+  opacity: 0 !important;
+}
+
+.btn{display:inline-flex;align-items:center;gap:.5rem;padding:.65rem 1.4rem;border-radius:10px;font-size:.875rem;font-weight:600;cursor:pointer;transition:all .2s ease;border:none;font-family:'Inter',sans-serif}
+.btn-primary{background:linear-gradient(135deg,var(--accent),#1a6fc4);color:#fff;box-shadow:0 4px 15px rgba(46,134,222,.3)}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(46,134,222,.4)}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn-secondary{background:var(--card2);color:var(--text2);border:1px solid var(--border)}
+.btn-secondary:hover{border-color:var(--accent);color:#fff;background:#1a2940}
+.btn-green{background:linear-gradient(135deg,#1e8449,#27ae60);color:#fff;box-shadow:0 4px 15px rgba(30,132,73,.3)}
+.btn-green:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(30,132,73,.4)}
+
+/* ─── Progress ─── */
+#progress-section{display:none;margin:2rem 0}
+.progress-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:2rem;max-width:680px;margin:0 auto;text-align:center}
+.spinner{width:48px;height:48px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 1.2rem}
+@keyframes spin{to{transform:rotate(360deg)}}
+.progress-title{font-size:1.1rem;font-weight:600;color:#fff;margin-bottom:.4rem}
+.progress-sub{font-size:.875rem;color:var(--muted)}
+.progress-bar-wrap{background:#1a2535;border-radius:6px;height:6px;margin-top:1.5rem;overflow:hidden}
+.progress-bar{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:6px;width:0%;transition:width .4s ease;animation:progress-pulse 1.5s ease-in-out infinite}
+@keyframes progress-pulse{0%,100%{opacity:1}50%{opacity:.7}}
+
+/* ─── Error card ─── */
+#error-section{display:none;margin:2rem 0}
+.error-card{background:#1a0f10;border:1px solid #c0392b44;border-radius:16px;padding:1.5rem;max-width:680px;margin:0 auto}
+.error-title{color:#e74c3c;font-weight:600;margin-bottom:.5rem;display:flex;align-items:center;gap:.5rem}
+.error-msg{font-size:.875rem;color:var(--muted);font-family:'JetBrains Mono',monospace}
+
+/* ─── Results ─── */
+#results-section{display:none}
+.results-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:.5rem}
+.results-title{font-size:1.6rem;font-weight:700;color:#fff}
+.results-actions{display:flex;gap:.75rem;flex-wrap:wrap}
+
+/* ─── Stats row ─── */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:1rem;margin-bottom:2rem}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.25rem 1rem;text-align:center;position:relative;overflow:hidden;transition:border-color .2s}
+.stat-card::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(46,134,222,.06) 0%,transparent 70%);pointer-events:none}
+.stat-card:hover{border-color:var(--accent)}
+.stat-value{font-size:2rem;font-weight:800;color:var(--accent);display:block;margin-bottom:.2rem}
+.stat-label{font-size:.75rem;color:var(--muted);font-weight:500;text-transform:uppercase;letter-spacing:.5px}
+
+/* ─── Section cards ─── */
+.section-card{background:var(--card);border:1px solid var(--border);border-radius:16px;margin-bottom:1.5rem;overflow:hidden}
+.section-head{background:linear-gradient(135deg,#162033,#1a2940);border-bottom:1px solid var(--border);padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between}
+.section-head h2{font-size:1rem;font-weight:700;color:#fff;display:flex;align-items:center;gap:.6rem}
+.section-head .count-badge{background:var(--accent);color:#fff;border-radius:12px;padding:.15rem .55rem;font-size:.7rem;font-weight:700}
+.section-body{padding:1.25rem}
+
+/* ─── Info grid (title block) ─── */
+.info-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:.75rem}
+.info-item{background:#0d1b2a;border:1px solid var(--border);border-radius:10px;padding:.75rem 1rem}
+.info-label{font-size:.7rem;color:var(--muted);font-weight:500;text-transform:uppercase;letter-spacing:.4px;margin-bottom:.2rem}
+.info-value{font-size:.9rem;color:#fff;font-weight:500;word-break:break-word}
+.info-value.mono{font-family:'JetBrains Mono',monospace;font-size:.8rem;color:var(--accent2)}
+
+/* ─── Tables ─── */
+.table-wrap{overflow-x:auto;border-radius:10px;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:.8rem}
+thead tr{background:#162033}
+thead th{padding:.7rem 1rem;text-align:left;font-weight:600;color:var(--accent2);font-size:.72rem;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;border-bottom:2px solid var(--border)}
+tbody tr{border-bottom:1px solid #1a2535;transition:background .15s}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:#131f2e}
+tbody td{padding:.65rem 1rem;color:var(--text2);vertical-align:middle}
+tbody td:first-child{color:#fff;font-weight:500}
+.mono-td{font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--accent2)}
+.combined-badge{display:inline-flex;align-items:center;gap:.3rem;background:rgba(46,134,222,.15);border:1px solid rgba(46,134,222,.3);color:var(--accent2);border-radius:6px;padding:.15rem .5rem;font-size:.68rem;font-weight:600;margin-left:.4rem;white-space:nowrap}
+.hw-mark{display:inline-block;background:rgba(30,132,73,.2);border:1px solid rgba(30,132,73,.4);color:#27ae60;border-radius:5px;padding:.1rem .4rem;font-size:.72rem;font-weight:700;font-family:'JetBrains Mono',monospace}
+.du-mark{display:inline-block;background:rgba(46,134,222,.2);border:1px solid rgba(46,134,222,.4);color:var(--accent2);border-radius:5px;padding:.1rem .4rem;font-size:.72rem;font-weight:700;font-family:'JetBrains Mono',monospace}
+.qty-badge{display:inline-block;background:#1a2535;border-radius:5px;padding:.1rem .45rem;font-size:.78rem;font-weight:700;color:#fff}
+.dim-combined{color:var(--accent);font-weight:600}
+.dim-original{color:var(--text2)}
+
+/* ─── Collapsible breakdown ─── */
+.breakdown-btn{background:none;border:none;color:var(--accent2);font-size:.72rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:.3rem;padding:.2rem 0;font-family:'Inter',sans-serif}
+.breakdown-btn:hover{color:var(--accent)}
+.breakdown-panel{display:none;margin-top:.75rem;padding:.75rem;background:#0a0f1a;border-radius:8px;border:1px solid var(--border)}
+.breakdown-row{display:flex;align-items:center;gap:.5rem;font-size:.75rem;padding:.25rem 0;border-bottom:1px solid #1a2535;flex-wrap:wrap}
+.breakdown-row:last-child{border-bottom:none}
+.breakdown-no{background:#1e2d3d;border-radius:4px;padding:.05rem .35rem;font-size:.68rem;color:var(--accent2);font-family:'JetBrains Mono',monospace}
+.arrow{color:var(--muted)}
+
+/* ─── Upload again ─── */
+#new-upload-btn{margin-bottom:1.5rem}
+
+/* ─── Responsive ─── */
+@media(max-width:600px){
+  .upload-section h1{font-size:1.7rem}
+  .results-header{flex-direction:column;align-items:flex-start}
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+}
+
+/* ─── Animations ─── */
+.fade-in{animation:fadeIn .4s ease forwards}
+@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <a href="/" class="logo">
+      <div class="logo-icon">⚙</div>
+      <div>
+        <div class="logo-text">BOM Analyser</div>
+        <div class="logo-sub">Engineering Drawing Material Report Tool</div>
+      </div>
+    </a>
+    <span class="header-badge">Isgec Heavy Engineering · Adani Port</span>
+  </div>
+</header>
+
+<main>
+
+<!-- ── Upload section ── -->
+<section class="upload-section" id="upload-section">
+  <h1>Extract BoM from Any Drawing</h1>
+  <p class="subtitle">Upload a <strong>PDF</strong> or a <strong>photo / scan</strong> of an engineering drawing. The tool extracts the Bill of Materials, groups identical parts, and generates a formatted report.</p>
+
+  <div id="drop-zone">
+    <span class="drop-icon">📐</span>
+    <div class="drop-title">Drop your file here</div>
+    <div class="drop-sub">or click anywhere to browse from your computer</div>
+    <div class="browse-btn-wrap">
+      <button type="button" class="browse-btn" id="browse-btn">📂 Browse Files</button>
+    </div>
+    <div class="file-types">
+      <span class="file-type-badge">PDF</span>
+      <span class="file-type-badge">JPG</span>
+      <span class="file-type-badge">PNG</span>
+      <span class="file-type-badge">TIFF</span>
+      <span class="file-type-badge">BMP</span>
+      <span class="file-type-badge">WEBP</span>
+    </div>
+  </div>
+  <input type="file" id="file-input" class="visually-hidden-input" accept=".pdf,.jpg,.jpeg,.png,.tiff,.tif,.bmp,.webp"/>
+</section>
+
+<!-- ── Progress ── -->
+<section id="progress-section">
+  <div class="progress-card">
+    <div class="spinner"></div>
+    <div class="progress-title" id="progress-title">Processing drawing…</div>
+    <div class="progress-sub" id="progress-sub">Please wait while we extract the Bill of Materials</div>
+    <div class="progress-bar-wrap"><div class="progress-bar" id="progress-bar"></div></div>
+  </div>
+</section>
+
+<!-- ── Error ── -->
+<section id="error-section">
+  <div class="error-card">
+    <div class="error-title">⚠ Extraction Error</div>
+    <div class="error-msg" id="error-msg"></div>
+  </div>
+  <div style="text-align:center;margin-top:1rem">
+    <button class="btn btn-secondary" onclick="reset()">↩ Try Another File</button>
+  </div>
+</section>
+
+<!-- ── Results ── -->
+<section id="results-section" class="fade-in">
+  <button class="btn btn-secondary" id="new-upload-btn" onclick="reset()">← Upload Another Drawing</button>
+
+  <div class="results-header">
+    <div class="results-title" id="results-title">Drawing Analysis Results</div>
+    <div class="results-actions" style="display: flex; gap: 0.6rem; flex-wrap: wrap; justify-content: flex-end; align-items: center;">
+      <button class="btn btn-green" id="download-annotated-btn" onclick="downloadAnnotated()" style="font-size: 0.92rem; padding: 0.7rem 1.5rem; box-shadow: 0 4px 15px rgba(39, 174, 96, 0.35);">
+        ⬇ Download Drawing with Summary (PDF)
+      </button>
+      <button class="btn btn-primary" id="download-excel-btn" onclick="downloadExcel()" style="background: #107c41; border-color: #107c41;">
+        📊 Download Excel Report
+      </button>
+      <button class="btn btn-secondary" id="download-report-btn" onclick="downloadTextReport()">
+        📄 Full Text Report (PDF)
+      </button>
+    </div>
+  </div>
+
+  <!-- Stats Row -->
+  <div class="stats-row">
+    <div class="stat-card"><span class="stat-value" id="st-bom">–</span><span class="stat-label">BoM Items</span></div>
+    <div class="stat-card"><span class="stat-value" id="st-grp">–</span><span class="stat-label">Grouped Materials</span></div>
+    <div class="stat-card"><span class="stat-value" id="st-hw">–</span><span class="stat-label">Hardware Types</span></div>
+    <div class="stat-card"><span class="stat-value" id="st-du">–</span><span class="stat-label">Dispatch Units</span></div>
+    <div class="stat-card"><span class="stat-value" id="st-refs">–</span><span class="stat-label">Ref. Drawings</span></div>
+    <div class="stat-card"><span class="stat-value" id="st-wt">–</span><span class="stat-label">Est. Weight (kg)</span></div>
+  </div>
+
+  <!-- Part 1: Drawing Info -->
+  <div class="section-card" id="card-part1">
+    <div class="section-head"><h2>Part 1: 📄 Drawing Information (Title Block)</h2></div>
+    <div class="section-body">
+      <div class="info-grid" id="info-grid"></div>
+      <div id="rev-history-wrap" style="margin-top:1rem;display:none">
+        <h3 style="font-size:.85rem;font-weight:600;color:var(--text2);margin-bottom:.75rem">Revision History</h3>
+        <div class="table-wrap"><table id="rev-table"><thead><tr><th>Rev</th><th>Date</th><th>Revised By</th><th>Approved By</th><th>Description</th></tr></thead><tbody id="rev-tbody"></tbody></table></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Drawing Material Summary (SUMMARY Table matching engineering drawing) -->
+  <div class="section-card" id="card-summary" style="display:none; border: 1px solid #2874A6;">
+    <div class="section-head" style="background: linear-gradient(135deg, #0d1b2a, #1b4f72);">
+      <h2>📊 Drawing Material Summary (SUMMARY Table) <span class="count-badge" id="sec-count" style="background:#2874A6;">0</span></h2>
+      <span style="font-size:.78rem;color:var(--accent2);font-weight:600;">Exact format stamped on returned drawing</span>
+    </div>
+    <div class="section-body">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 15%; text-align: center;">SR. NO.</th>
+              <th style="width: 55%;">SECTION</th>
+              <th style="width: 30%; text-align: right;">TOTAL (kg)</th>
+            </tr>
+          </thead>
+          <tbody id="summary-tbody"></tbody>
+          <tfoot>
+            <tr style="background:#162033;font-weight:700;border-top:2px solid var(--border)">
+              <td colspan="2" style="padding:.75rem 1rem;color:#fff;font-size:.85rem;">Grand Total</td>
+              <td id="summary-grand-total" style="padding:.75rem 1rem;text-align:right;color:var(--accent2);font-size:.9rem;font-family:'JetBrains Mono',monospace;">–</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Part 2: Grouped Materials -->
+  <div class="section-card" id="card-part2">
+    <div class="section-head">
+      <h2>Part 2: 🔩 Grouped Material Requirements <span class="count-badge" id="grp-count">0</span></h2>
+      <span style="font-size:.75rem;color:var(--muted)">Items with same part number combined</span>
+    </div>
+    <div class="section-body">
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>#</th><th>Description</th><th>Spec</th><th>Combined Dimension</th>
+            <th>Total Qty</th><th>Total Wt (kg)</th><th>Part Code</th><th>Parts</th>
+          </tr></thead>
+          <tbody id="grp-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Part 3: Hardware -->
+  <div class="section-card" id="hw-card">
+    <div class="section-head">
+      <h2>Part 3: 🔧 Hardware & Fastener Requirements <span class="count-badge" id="hw-count">0</span></h2>
+    </div>
+    <div class="section-body">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Mark</th><th>Description</th><th>Code</th><th>Qty</th><th>Unit Wt (kg)</th><th>Total Wt (kg)</th></tr></thead>
+          <tbody id="hw-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Part 4: Raw BoM -->
+  <div class="section-card" id="bom-card">
+    <div class="section-head">
+      <h2>Part 4: 📋 Raw Bill of Materials (BoM) <span class="count-badge" id="bom-count">0</span></h2>
+      <span style="font-size:.75rem;color:var(--muted)">All original parts in sequential numerical order</span>
+    </div>
+    <div class="section-body">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Item #</th><th>Description</th><th>Specification</th><th>Size / Length</th><th>Qty</th><th>Wt/unit (kg)</th><th>Purchase Code</th></tr></thead>
+          <tbody id="bom-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Part 5: Dispatch Units -->
+  <div class="section-card" id="du-card">
+    <div class="section-head">
+      <h2>Part 5: 📦 Dispatch Units (Shipping Packages) <span class="count-badge" id="du-count">0</span></h2>
+      <span style="font-size:.75rem;color:var(--muted)">Fabrication shipping unit breakdown</span>
+    </div>
+    <div class="section-body">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>DU No.</th><th>Description</th><th>Type</th><th>Weight (kg)</th><th>UOM</th><th>Purchase Code</th></tr></thead>
+          <tbody id="du-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Part 6: Reference drawings -->
+  <div class="section-card" id="ref-card">
+    <div class="section-head"><h2>Part 6: 🔗 Reference Drawings <span class="count-badge" id="ref-count">0</span></h2></div>
+    <div class="section-body">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Document ID</th><th>Description</th></tr></thead>
+          <tbody id="ref-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<script>
+let currentJobId = null;
+let pollTimer = null;
+
+// ── Upload Handlers ──────────────────────────────────────────────────────────
+
+const dropZone   = document.getElementById('drop-zone');
+const fileInput  = document.getElementById('file-input');
+const browseBtn  = document.getElementById('browse-btn');
+
+// Trigger file picker on click
+dropZone.addEventListener('click', (e) => {
+  fileInput.click();
+});
+
+browseBtn.addEventListener('click', (e) => {
+  e.stopPropagation(); // Avoid double click inside dropZone
+  fileInput.click();
+});
+
+// File selection handler
+function handleFileSelect(e) {
+  const files = (e.target && e.target.files) || fileInput.files;
+  if (files && files.length > 0) {
+    const file = files[0];
+    fileInput.value = ''; // Reset so same file can be re-selected if needed
+    uploadFile(file);
+  }
+}
+
+fileInput.addEventListener('change', handleFileSelect);
+fileInput.addEventListener('input', handleFileSelect);
+
+// Drag & drop handlers
+['dragenter', 'dragover'].forEach(name => {
+  dropZone.addEventListener(name, (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dropZone.classList.add('drag-over');
+  });
+});
+
+['dragleave', 'drop'].forEach(name => {
+  dropZone.addEventListener(name, (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dropZone.classList.remove('drag-over');
+  });
+});
+
+dropZone.addEventListener('drop', (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+  dropZone.classList.remove('drag-over');
+  const dt = e.dataTransfer;
+  if (dt && dt.files && dt.files.length > 0) {
+    uploadFile(dt.files[0]);
+  }
+});
+
+function formatBytes(bytes) {
+  if (bytes === 0) return '0 Bytes';
+  const k = 1024;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+}
+
+function uploadFile(file) {
+  if (!file) return;
+  show('progress');
+  const sizeText = file.size ? ' (' + formatBytes(file.size) + ')' : '';
+  setProgress('Uploading drawing…', file.name + sizeText, 15);
+
+  const fd = new FormData();
+  fd.append('file', file);
+
+  fetch('/upload', { method: 'POST', body: fd })
+    .then(r => {
+      if (!r.ok) {
+        return r.json().then(data => { throw new Error(data.error || ('HTTP ' + r.status)); });
+      }
+      return r.json();
+    })
+    .then(data => {
+      if (data.error) { showError(data.error); return; }
+      currentJobId = data.job_id;
+      pollStatus();
+    })
+    .catch(e => showError('Upload error: ' + e.message));
+}
+
+function pollStatus() {
+  if (!currentJobId) return;
+  fetch('/status/' + currentJobId)
+    .then(r => {
+      if (!r.ok) throw new Error('Status request failed');
+      return r.json();
+    })
+    .then(data => {
+      if (data.status === 'queued') {
+        setProgress('Queued for processing…', 'Preparing extraction pipeline', 25);
+        pollTimer = setTimeout(pollStatus, 700);
+      } else if (data.status === 'extracting') {
+        setProgress('Extracting drawing data…', 'Reading BoM table, title block & hardware specifications', 55);
+        pollTimer = setTimeout(pollStatus, 700);
+      } else if (data.status === 'generating') {
+        setProgress('Generating PDF report…', 'Compiling material groups and engineering summary', 85);
+        pollTimer = setTimeout(pollStatus, 600);
+      } else if (data.status === 'done') {
+        setProgress('Done!', 'Loading report results…', 100);
+        setTimeout(() => renderResults(data.result), 350);
+      } else if (data.status === 'error') {
+        showError(data.error || 'Unknown error occurred during processing.');
+      } else {
+        pollTimer = setTimeout(pollStatus, 700);
+      }
+    })
+    .catch(err => {
+      console.warn('Poll error:', err);
+      pollTimer = setTimeout(pollStatus, 1500);
+    });
+}
+
+// ── UI state ─────────────────────────────────────────────────────────────────
+
+function show(section) {
+  document.getElementById('upload-section').style.display   = section === 'upload'   ? 'block' : 'none';
+  document.getElementById('progress-section').style.display = section === 'progress' ? 'block' : 'none';
+  document.getElementById('error-section').style.display    = section === 'error'    ? 'block' : 'none';
+  document.getElementById('results-section').style.display  = section === 'results'  ? 'block' : 'none';
+}
+
+function setProgress(title, sub, pct) {
+  document.getElementById('progress-title').textContent = title;
+  document.getElementById('progress-sub').textContent   = sub;
+  document.getElementById('progress-bar').style.width   = pct + '%';
+}
+
+function showError(msg) {
+  show('error');
+  document.getElementById('error-msg').textContent = msg;
+}
+
+function reset() {
+  if (pollTimer) clearTimeout(pollTimer);
+  currentJobId = null;
+  fileInput.value = '';
+  show('upload');
+}
+
+function downloadReport() {
+  if (currentJobId) window.location = '/download_annotated/' + currentJobId;
+}
+
+function downloadAnnotated() {
+  if (currentJobId) window.location = '/download_annotated/' + currentJobId;
+}
+
+function downloadTextReport() {
+  if (currentJobId) window.location = '/download_report/' + currentJobId;
+}
+
+function downloadExcel() {
+  if (currentJobId) window.location = '/download_excel/' + currentJobId;
+}
+
+// ── Render results ────────────────────────────────────────────────────────────
+
+function esc(s) {
+  if (s === null || s === undefined || s === '') return '–';
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+function renderResults(r) {
+  if (!r) { showError('No data extracted from drawing.'); return; }
+
+  const hasData = (r.bom_items && r.bom_items.length > 0) ||
+                  (r.hardware_items && r.hardware_items.length > 0) ||
+                  (r.title_block && r.title_block.document_id);
+
+  if (!hasData) {
+    showError('No Bill of Materials or title block could be extracted from this image/document. Please ensure the image is clear and contains a standard BoM table.');
+    return;
+  }
+
+  show('results');
+
+  const tb = r.title_block || {};
+
+  // Title
+  const docId = tb.document_id || 'Engineering Drawing';
+  document.getElementById('results-title').textContent = docId;
+
+  // Stats
+  const s = r.stats || {};
+  document.getElementById('st-bom').textContent  = s.bom_count !== undefined ? s.bom_count : '–';
+  document.getElementById('st-grp').textContent  = s.grouped_count !== undefined ? s.grouped_count : '–';
+  document.getElementById('st-hw').textContent   = s.hardware_count !== undefined ? s.hardware_count : '–';
+  document.getElementById('st-du').textContent   = s.du_count !== undefined ? s.du_count : '–';
+  document.getElementById('st-refs').textContent = s.refs_count !== undefined ? s.refs_count : '–';
+  document.getElementById('st-wt').textContent   = s.total_weight ? s.total_weight : '–';
+
+  document.getElementById('grp-count').textContent = s.grouped_count || 0;
+  document.getElementById('hw-count').textContent  = s.hardware_count || 0;
+  document.getElementById('bom-count').textContent = s.bom_count || 0;
+  document.getElementById('du-count').textContent  = s.du_count || 0;
+  document.getElementById('ref-count').textContent = s.refs_count || 0;
+
+  // Part 1: Info grid
+  const infoItems = [
+    ['Document ID',   tb.document_id,    true],
+    ['Project ID',    tb.project_id,     true],
+    ['Element ID',    tb.element_id,     true],
+    ['Title',         [tb.title_line1, tb.title_line2].filter(Boolean).join(' — '), false],
+    ['Revision',      tb.revision,       false],
+    ['Date',          tb.date,           false],
+    ['Scale',         tb.scale,          false],
+    ['Sheet Size',    tb.sheet_size,     false],
+    ['Year',          tb.year,           false],
+    ['Total Weight',  tb.total_weight_kg ? tb.total_weight_kg + ' kg' : '', false],
+    ['Drawn By',      tb.drawn_by,       false],
+    ['Checked By',    tb.checked_by,     false],
+    ['Approved By',   tb.approved_by,    false],
+    ['Client',        tb.client,         false],
+    ['Consultant',    tb.consultant,     false],
+    ['Service',       tb.service,        false],
+  ].filter(([,v]) => v);
+
+  const ig = document.getElementById('info-grid');
+  ig.innerHTML = infoItems.map(([label, val, mono]) =>
+    `<div class="info-item">
+      <div class="info-label">${esc(label)}</div>
+      <div class="info-value ${mono ? 'mono' : ''}">${esc(val)}</div>
+    </div>`
+  ).join('');
+
+  // Revision history
+  if (tb.revision_history && tb.revision_history.length) {
+    document.getElementById('rev-history-wrap').style.display = '';
+    document.getElementById('rev-tbody').innerHTML = tb.revision_history.map(rv =>
+      `<tr>
+        <td>${esc(rv.rev)}</td>
+        <td>${esc(rv.date)}</td>
+        <td>${esc(rv.revised_by)}</td>
+        <td>${esc(rv.approved_by)}</td>
+        <td>${esc(rv.description)}</td>
+      </tr>`
+    ).join('');
+  } else {
+    document.getElementById('rev-history-wrap').style.display = 'none';
+  }
+
+  // Drawing Material Summary (SUMMARY Table)
+  const secCard = document.getElementById('card-summary');
+  const secTb = document.getElementById('summary-tbody');
+  const secData = r.section_summary;
+  if (secData && secData.items && secData.items.length) {
+    secCard.style.display = '';
+    document.getElementById('sec-count').textContent = secData.items.length;
+    secTb.innerHTML = secData.items.map(item => `<tr>
+      <td style="text-align:center;font-family:'JetBrains Mono',monospace;">${item.sr_no}</td>
+      <td style="font-weight:600;color:#fff">${esc(item.section)}</td>
+      <td style="text-align:right;font-family:'JetBrains Mono',monospace;color:var(--accent2);font-weight:600">${Number(item.total_weight_kg).toFixed(2)}</td>
+    </tr>`).join('');
+    document.getElementById('summary-grand-total').textContent = (secData.grand_total_kg !== undefined ? Number(secData.grand_total_kg).toFixed(2) : '–') + ' kg';
+  } else {
+    secCard.style.display = 'none';
+  }
+
+  // Part 2: Grouped materials
+  const gb = document.getElementById('grp-tbody');
+  const grouped = r.grouped_materials || [];
+  gb.innerHTML = grouped.map((g, i) => {
+    const isCombined = g.parts_combined > 1;
+    const combinedTag = isCombined
+      ? `<span class="combined-badge">✦ ${g.parts_combined} parts combined</span>` : '';
+
+    let breakdownHtml = '';
+    if (isCombined && g.source_item_nos && g.source_item_nos.length) {
+      const rows = g.source_item_nos.map((no, idx) => {
+        const sz = (g.source_sizes && g.source_sizes[idx]) || '';
+        return `<div class="breakdown-row">
+          <span class="breakdown-no">Part #${esc(no)}</span>
+          <span class="dim-original">${esc(sz)}</span>
+        </div>`;
+      }).join('');
+
+      breakdownHtml = `
+        <br>
+        <button type="button" class="breakdown-btn" onclick="toggleBreakdown(this)">▶ Show combination detail</button>
+        <div class="breakdown-panel">
+          ${rows}
+          <div style="margin-top:.5rem;font-size:.72rem;color:var(--accent);font-weight:600">→ Combined: ${esc(g.combined_size)}</div>
+        </div>`;
+    }
+
+    const wtStr = (g.total_weight_kg !== null && g.total_weight_kg !== undefined && !isNaN(g.total_weight_kg))
+      ? Number(g.total_weight_kg).toFixed(3)
+      : '–';
+
+    return `<tr>
+      <td>${i + 1}</td>
+      <td style="font-weight:600;color:#fff">${esc(g.description)}${combinedTag}${breakdownHtml}</td>
+      <td class="mono-td">${esc(g.specification)}</td>
+      <td><span class="dim-combined">${esc(g.combined_size)}</span></td>
+      <td><span class="qty-badge">${g.total_quantity || 1}</span></td>
+      <td>${wtStr}</td>
+      <td class="mono-td">${esc(g.purchase_item_code)}</td>
+      <td style="text-align:center;color:${isCombined ? 'var(--accent2)' : 'var(--muted)'};font-weight:${isCombined ? '700' : '400'}">${g.parts_combined || 1}</td>
+    </tr>`;
+  }).join('');
+
+  // Part 3: Hardware
+  const hb = document.getElementById('hw-tbody');
+  const hardware = r.hardware_items || [];
+  if (hardware.length) {
+    document.getElementById('hw-card').style.display = '';
+    hb.innerHTML = hardware.map(h => {
+      const uwt = (h.unit_weight_kg !== null && h.unit_weight_kg !== undefined && !isNaN(h.unit_weight_kg))
+        ? Number(h.unit_weight_kg).toFixed(3) : '–';
+      const twt = (h.total_weight_kg !== null && h.total_weight_kg !== undefined && !isNaN(h.total_weight_kg))
+        ? Number(h.total_weight_kg).toFixed(3) : '–';
+
+      return `<tr>
+        <td><span class="hw-mark">${esc(h.bolt_mark || '–')}</span></td>
+        <td>${esc(h.description)}</td>
+        <td class="mono-td">${esc(h.purchase_item_code)}</td>
+        <td><span class="qty-badge">${h.quantity}</span></td>
+        <td>${uwt}</td>
+        <td>${twt}</td>
+      </tr>`;
+    }).join('');
+  } else {
+    document.getElementById('hw-card').style.display = 'none';
+  }
+
+  // Part 4: Raw BoM
+  const bb = document.getElementById('bom-tbody');
+  const bomItems = r.bom_items || [];
+  if (bomItems.length) {
+    document.getElementById('bom-card').style.display = '';
+    bb.innerHTML = bomItems.map(b => {
+      const wt = (b.part_weight_kg !== null && b.part_weight_kg !== undefined && !isNaN(b.part_weight_kg))
+        ? Number(b.part_weight_kg).toFixed(3) : '–';
+
+      return `<tr>
+        <td class="mono-td">Part #${esc(b.item_no)}</td>
+        <td>${esc(b.description)}</td>
+        <td class="mono-td">${esc(b.specification)}</td>
+        <td>${esc(b.size)}</td>
+        <td><span class="qty-badge">${b.quantity}</span></td>
+        <td>${wt}</td>
+        <td class="mono-td">${esc(b.purchase_item_code)}</td>
+      </tr>`;
+    }).join('');
+  } else {
+    document.getElementById('bom-card').style.display = 'none';
+  }
+
+  // Part 5: Dispatch Units
+  const db = document.getElementById('du-tbody');
+  const dispatchUnits = r.dispatch_units || [];
+  if (dispatchUnits.length) {
+    document.getElementById('du-card').style.display = '';
+    db.innerHTML = dispatchUnits.map(d => {
+      const wt = (d.du_weight_kg !== null && d.du_weight_kg !== undefined && !isNaN(d.du_weight_kg))
+        ? Number(d.du_weight_kg).toFixed(2) : '–';
+
+      return `<tr>
+        <td><span class="du-mark">${esc(d.du_no)}</span></td>
+        <td style="font-weight:600;color:#fff">${esc(d.description)}</td>
+        <td class="mono-td">${esc(d.du_type)}</td>
+        <td>${wt}</td>
+        <td><span class="qty-badge">${esc(d.uom)}</span></td>
+        <td class="mono-td">${esc(d.purchase_item_code)}</td>
+      </tr>`;
+    }).join('');
+  } else {
+    document.getElementById('du-card').style.display = 'none';
+  }
+
+  // Part 6: References
+  const rb = document.getElementById('ref-tbody');
+  const refs = r.reference_drawings || [];
+  if (refs.length) {
+    document.getElementById('ref-card').style.display = '';
+    rb.innerHTML = refs.map(rd =>
+      `<tr>
+        <td class="mono-td">${esc(rd.document_id)}</td>
+        <td>${esc(rd.description)}</td>
+      </tr>`
+    ).join('');
+  } else {
+    document.getElementById('ref-card').style.display = 'none';
+  }
+}
+
+function toggleBreakdown(btn) {
+  const panel = btn.nextElementSibling;
+  const open  = panel.style.display === 'block';
+  panel.style.display = open ? 'none' : 'block';
+  btn.textContent     = (open ? '▶' : '▼') + ' ' + (open ? 'Show' : 'Hide') + ' combination detail';
+}
+</script>
+</body>
+</html>
