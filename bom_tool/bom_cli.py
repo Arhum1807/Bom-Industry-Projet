@@ -21,7 +21,7 @@ sys.path.insert(0, str(TOOL_DIR))
 
 from bom_extractor import extract_drawing_data
 from material_grouper import group_bom_items, get_section_summary
-from report_generator import generate_report, generate_annotated_pdf
+from report_generator import generate_report, generate_annotated_pdf, generate_cad_drawing_with_bom
 
 
 # ── Banner ──────────────────────────────────────────────────────────────────
@@ -169,11 +169,14 @@ def process_single(pdf_path, output_pdf=None, debug=False, output_dir=None):
     print(f"\n  Report saved to: {output_pdf}")
 
     sec_summary = get_section_summary(data.bom_items)
-    annotated_pdf = str(out_dir / f"{base}_ANNOTATED.pdf")
-    print("  Generating drawing with SUMMARY table...", end='', flush=True)
-    generate_annotated_pdf(pdf_path, grouped, sec_summary, annotated_pdf)
+    cad_bom_pdf = str(out_dir / f"{base}_WITH_BOM.pdf")
+    print("  Generating drawing with BOM & SUMMARY tables (Feature 2)...", end='', flush=True)
+    generate_cad_drawing_with_bom(pdf_path, data.bom_items, sec_summary, cad_bom_pdf)
     print(" done.")
-    print(f"  Drawing with SUMMARY saved to: {annotated_pdf}")
+    print(f"  Drawing with Generated BOM saved to: {cad_bom_pdf}")
+
+    annotated_pdf = str(out_dir / f"{base}_ANNOTATED.pdf")
+    generate_annotated_pdf(pdf_path, grouped, sec_summary, annotated_pdf, bom_items=data.bom_items)
 
     if debug:
         json_path = str(out_dir / f"{base}_debug.json")

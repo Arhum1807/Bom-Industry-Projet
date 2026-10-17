@@ -361,8 +361,65 @@ def _parse_bom_section(lines: list) -> List[BomItem]:
     return items
 
 
-# ---------------------------------------------------------------------------
-# Hardware extraction
+def _parse_mechanical_bom(lines: list) -> List[BomItem]:
+    """
+    Parser for SolidWorks, Inventor, and generic mechanical engineering drawing BOM tables.
+    Matches tables with headers like:
+      ITEM | QTY | PART NO / CATALOGUE NO | DESCRIPTION | MATERIAL / MANUFACTURER
+    """
+    start = -1
+    for i, l in enumerate(lines):
+        l_up = l.upper()
+        if any(h in l_up for h in ['PART NO', 'CATALOGUE NO']) and any(h in l_up for h in ['QTY', 'DESCRIPTION', 'ITEM']):
+            start = i
+            break
+        elif l_up == 'ITEM' and i + 1 < len(lines) and 'QTY' in lines[i + 1].upper():
+            start = i + 1
+            break
+
+    if start == -1:
+        return []
+
+    curr = start
+    while curr < len(lines) and any(k in lines[curr].upper() for k in ['ITEM', 'QTY', 'PART NO', 'CATALOGUE NO', 'DESCRIPTION', 'MATERIAL', 'MANUFACTURER']):
+        curr += 1
+
+    items = []
+    while curr < len(lines):
+        l = lines[curr].strip()
+        if not re.match(r'^\d{1,3}$', l):
+            break
+        item_no = l
+        curr += 1
+        if curr >= len(lines) or not re.match(r'^\d{1,4}$', lines[curr].strip()):
+            break
+        qty = int(lines[curr].strip())
+        curr += 1
+        if curr >= len(lines):
+            break
+        part_no = lines[curr].strip()
+        curr += 1
+        if curr >= len(lines):
+            break
+        desc = lines[curr].strip()
+        curr += 1
+        spec = ''
+        if curr < len(lines) and not re.match(r'^\d{1,3}$', lines[curr].strip()) and not any(k in lines[curr].upper() for k in ['DETAIL', 'NOTE', 'SCALE', 'SECTION', 'DIMENSION', 'ZONE']):
+            spec = lines[curr].strip()
+            curr += 1
+
+        items.append(BomItem(
+            item_no=item_no,
+            description=desc,
+            specification=spec if spec else 'STANDARD',
+            size=part_no,
+            quantity=qty,
+            part_weight_kg=0.0,
+            purchase_item_code=part_no
+        ))
+
+    return items
+
 # ---------------------------------------------------------------------------
 
 def _parse_hardware_section(text: str) -> List[HardwareItem]:
@@ -494,6 +551,8 @@ def extract_drawing_data(pdf_path: str) -> DrawingData:
     data = DrawingData(raw_text=full_text)
     data.title_block        = _find_title_block(full_text, all_lines)
     data.bom_items          = _parse_bom_section(all_lines)
+    if not data.bom_items:
+        data.bom_items      = _parse_mechanical_bom(all_lines)
     data.hardware_items     = _parse_hardware_section(full_text)
     data.dispatch_units     = _parse_dispatch_units(all_lines)
     data.reference_drawings = _parse_reference_drawings(

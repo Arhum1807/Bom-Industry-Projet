@@ -26,7 +26,8 @@ import io
 from bom_extractor import (
     DrawingData, TitleBlock, BomItem, HardwareItem,
     DispatchUnit, ReferenceDrawing,
-    _find_title_block, _parse_bom_section, _parse_hardware_section,
+    _find_title_block, _parse_bom_section, _parse_mechanical_bom,
+    _parse_hardware_section,
     _parse_dispatch_units, _parse_reference_drawings,
     RE_DOC_ID,
 )
@@ -147,6 +148,8 @@ def _extract_from_pdf_path(pdf_path: str) -> DrawingData:
     data = DrawingData(raw_text=full_text)
     data.title_block        = _find_title_block(full_text, all_lines)
     data.bom_items          = _parse_bom_section(all_lines)
+    if not data.bom_items:
+        data.bom_items      = _parse_mechanical_bom(all_lines)
     data.hardware_items     = _parse_hardware_section(full_text)
     data.dispatch_units     = _parse_dispatch_units(all_lines)
     data.reference_drawings = _parse_reference_drawings(

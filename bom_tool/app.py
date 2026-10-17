@@ -132,44 +132,92 @@ def _serialise_data(data, grouped, sec_summary):
     }
 
 
-def _process_job(job_id: str, file_path: str):
-    """Background thread: extract data + generate report."""
+def _process_job(job_id: str, file_path: str, mode: str = 'f1'):
+    """Background thread: runs strictly Feature 1 OR Feature 2 based on selected mode."""
     try:
         with JOBS_LOCK:
             JOBS[job_id]['status'] = 'extracting'
 
-        data        = extract_any(file_path)
+        from report_generator import (
+            generate_grouped_excel,
+            generate_cad_bom_excel,
+            generate_cad_drawing_with_bom,
+            generate_annotated_pdf,
+            _synthesize_or_extract_cad_bom
+        )
+
+        data = extract_any(file_path)
+        if not data.bom_items:
+            try:
+                import pymupdf as fitz
+                doc_chk = fitz.open(file_path)
+                data.bom_items = _synthesize_or_extract_cad_bom(doc_chk[0])
+                doc_chk.close()
+            except Exception as e_syn:
+                print("Synthetic BOM extraction warning:", e_syn)
+
         sec_summary = get_section_summary(data.bom_items)
         grouped     = group_bom_items(data.bom_items)
 
         with JOBS_LOCK:
             JOBS[job_id]['status'] = 'generating'
 
-        report_name = f"{job_id}_REPORT.pdf"
-        report_path = str(REPORT_DIR / report_name)
-        generate_report(data, report_path)
+        report_name = None
+        report_path = None
+        cad_bom_name = None
+        cad_bom_path = None
+        annotated_name = None
+        annotated_path = None
 
-        excel_name = f"{job_id}_GROUPED.xlsx"
-        excel_path = str(REPORT_DIR / excel_name)
-        from report_generator import generate_grouped_excel, generate_annotated_pdf
-        generate_grouped_excel(grouped, sec_summary, excel_path)
+        if mode == 'f2':
+            # FEATURE 2 ONLY:
+            # 1. Generate CAD Drawing with BOM Stamped On-Sheet
+            cad_bom_name = f"{job_id}_CAD_BOM.pdf"
+            cad_bom_path = str(REPORT_DIR / cad_bom_name)
+            generate_cad_drawing_with_bom(file_path, data.bom_items, sec_summary, cad_bom_path)
 
-        annotated_name = f"{job_id}_ANNOTATED.pdf"
-        annotated_path = str(REPORT_DIR / annotated_name)
-        generate_annotated_pdf(file_path, grouped, sec_summary, annotated_path)
+            # 2. Generate Feature 2 Excel Workbook with complete BOM sheet and Section Summary
+            excel_name = f"{job_id}_BOM_REPORT.xlsx"
+            excel_path = str(REPORT_DIR / excel_name)
+            generate_cad_bom_excel(data.bom_items, sec_summary, excel_path)
+        else:
+            # FEATURE 1 ONLY:
+            # 1. Generate Corporate 5-Page PDF Report
+            report_name = f"{job_id}_REPORT.pdf"
+            report_path = str(REPORT_DIR / report_name)
+            generate_report(data, report_path)
+
+            # 2. Generate Grouped Material Requirements Excel
+            excel_name = f"{job_id}_GROUPED.xlsx"
+            excel_path = str(REPORT_DIR / excel_name)
+            generate_grouped_excel(grouped, sec_summary, excel_path)
+
+            # 3. Generate Original Drawing with Section Summary Attached In-Place (PDF)
+            annotated_name = f"{job_id}_ANNOTATED.pdf"
+            annotated_path = str(REPORT_DIR / annotated_name)
+            generate_annotated_pdf(file_path, grouped, sec_summary, annotated_path)
 
         result = _serialise_data(data, grouped, sec_summary)
+        result['mode'] = mode
+        result['has_cad_bom'] = (mode == 'f2')
+        result['cad_bom_url'] = f"/download_cad_bom/{job_id}" if cad_bom_path else None
+        result['report_url'] = f"/download_report/{job_id}" if report_path else None
+        result['annotated_url'] = f"/download_annotated/{job_id}" if annotated_path else None
+        result['excel_url'] = f"/download_excel/{job_id}"
 
         with JOBS_LOCK:
             JOBS[job_id].update({
-                'status'     : 'done',
-                'result'     : result,
-                'report_path': report_path,
-                'report_name': report_name,
-                'excel_path' : excel_path,
-                'excel_name' : excel_name,
-                'annotated_path': annotated_path,
-                'annotated_name': annotated_name,
+                'status'        : 'done',
+                'mode'          : mode,
+                'result'        : result,
+                'report_path'   : report_path,
+                'report_name'   : report_name,
+                'excel_path'    : excel_path,
+                'excel_name'    : excel_name,
+                'cad_bom_path'  : cad_bom_path,
+                'cad_bom_name'  : cad_bom_name,
+                'annotated_path': annotated_path if annotated_path else cad_bom_path,
+                'annotated_name': annotated_name if annotated_name else cad_bom_name,
             })
     except Exception as e:
         import traceback
@@ -199,6 +247,10 @@ def upload():
     if ext not in ALLOWED_EXTS:
         return jsonify({'error': f'Unsupported file type: {ext}. Allowed: {", ".join(sorted(ALLOWED_EXTS))}'}), 400
 
+    mode = request.form.get('mode', 'f1').lower()
+    if mode not in ('f1', 'f2'):
+        mode = 'f1'
+
     job_id   = str(uuid.uuid4())
     save_path = str(UPLOAD_DIR / f"{job_id}{ext}")
     f.save(save_path)
@@ -207,17 +259,19 @@ def upload():
         JOBS[job_id] = {
             'status'     : 'queued',
             'filename'   : f.filename,
+            'mode'       : mode,
             'result'     : None,
             'report_path': None,
             'excel_path' : None,
+            'cad_bom_path': None,
             'error'      : None,
         }
 
-    # Process in background thread
-    t = threading.Thread(target=_process_job, args=(job_id, save_path), daemon=True)
+    # Process in background thread with mode
+    t = threading.Thread(target=_process_job, args=(job_id, save_path, mode), daemon=True)
     t.start()
 
-    return jsonify({'job_id': job_id})
+    return jsonify({'job_id': job_id, 'mode': mode})
 
 
 @app.route('/status/<job_id>')
@@ -259,7 +313,11 @@ def download_excel(job_id):
     excel_path = job.get('excel_path')
     if not excel_path or not os.path.exists(excel_path):
         abort(404)
-    filename = Path(job['filename']).stem + '_GROUPED_MATERIALS.xlsx'
+    mode = job.get('mode', 'f1')
+    if mode == 'f2':
+        filename = Path(job['filename']).stem + '_BOM_REPORT.xlsx'
+    else:
+        filename = Path(job['filename']).stem + '_GROUPED_MATERIALS.xlsx'
     return send_file(excel_path, as_attachment=True, download_name=filename)
 
 
@@ -276,6 +334,55 @@ def download_annotated(job_id):
     return send_file(annotated_path, as_attachment=True, download_name=filename)
 
 
+@app.route('/view_annotated/<job_id>')
+def view_annotated(job_id):
+    with JOBS_LOCK:
+        job = JOBS.get(job_id)
+    if not job or job['status'] != 'done':
+        abort(404)
+    annotated_path = job.get('annotated_path')
+    if not annotated_path or not os.path.exists(annotated_path):
+        abort(404)
+    return send_file(annotated_path, mimetype='application/pdf', as_attachment=False)
+
+
+@app.route('/download_cad_bom/<job_id>')
+def download_cad_bom(job_id):
+    with JOBS_LOCK:
+        job = JOBS.get(job_id)
+    if not job or job['status'] != 'done':
+        abort(404)
+    cad_bom_path = job.get('cad_bom_path') or job.get('annotated_path')
+    if not cad_bom_path or not os.path.exists(cad_bom_path):
+        abort(404)
+    filename = Path(job['filename']).stem + '_WITH_GENERATED_BOM.pdf'
+    return send_file(cad_bom_path, as_attachment=True, download_name=filename)
+
+
+@app.route('/view_cad_bom/<job_id>')
+def view_cad_bom(job_id):
+    with JOBS_LOCK:
+        job = JOBS.get(job_id)
+    if not job or job['status'] != 'done':
+        abort(404)
+    cad_bom_path = job.get('cad_bom_path') or job.get('annotated_path')
+    if not cad_bom_path or not os.path.exists(cad_bom_path):
+        abort(404)
+    return send_file(cad_bom_path, mimetype='application/pdf', as_attachment=False)
+
+
+@app.route('/preview_cad_bom/<job_id>')
+def preview_cad_bom(job_id):
+    with JOBS_LOCK:
+        job = JOBS.get(job_id)
+    if not job or job['status'] != 'done':
+        abort(404)
+    preview_path = job.get('preview_path')
+    if not preview_path or not os.path.exists(preview_path):
+        abort(404)
+    return send_file(preview_path, mimetype='image/png')
+
+
 @app.route('/download_report/<job_id>')
 def download_report_pdf(job_id):
     with JOBS_LOCK:
@@ -285,6 +392,20 @@ def download_report_pdf(job_id):
     report_path = job['report_path']
     filename = Path(job['filename']).stem + '_REPORT.pdf'
     return send_file(report_path, as_attachment=True, download_name=filename)
+
+
+@app.route('/view_report/<job_id>')
+def view_report_pdf(job_id):
+    with JOBS_LOCK:
+        job = JOBS.get(job_id)
+    if not job or job['status'] != 'done':
+        abort(404)
+    report_path = job.get('report_path')
+    if not report_path or not os.path.exists(report_path):
+        abort(404)
+    return send_file(report_path, mimetype='application/pdf', as_attachment=False)
+
+
 
 
 if __name__ == '__main__':
